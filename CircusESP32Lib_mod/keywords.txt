@@ -14,8 +14,10 @@ CircusESP32Lib	KEYWORD1	CircusESP32Lib
 
 # CircusESP32Lib Class
 getCertificate	KEYWORD2
-read		KEYWORD2
-write		KEYWORD2
+read		    KEYWORD2
+write		    KEYWORD2
+read_array  KEYWORD2
+write_array KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
