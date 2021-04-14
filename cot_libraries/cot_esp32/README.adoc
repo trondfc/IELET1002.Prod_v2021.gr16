@@ -4,7 +4,8 @@ The CircusESP32Lib implements the circusofthings.com API for ESP32 boards
 
 For more information about this library please visit us at
 https://circusofthings.com/development
-
+==============================================
+Modified to include functions to read and write arrays
 == License ==
 
 Copyright (c) 2014 Arduino LLC. All right reserved.
