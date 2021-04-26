@@ -43,12 +43,13 @@ void CircusESP32Lib::getCertificate() {
         http.end();
 }
 
-void CircusESP32Lib::write(char *key, double value, char *token) {
+bool CircusESP32Lib::write(char *key, double value, char *token) {
 	WiFiClientSecure client;
   	client.setCACert(_charBuf_rootCA);
     	Serial.println("SSL connection attempt");
     	if (!client.connect(_server, 443)){
 		Serial.println("Connection failed!");
+		return(false);
     	} else {
         	Serial.println("Connected to server!");
         	char bufValue[30]; 
@@ -84,13 +85,15 @@ void CircusESP32Lib::write(char *key, double value, char *token) {
 		    	Serial.println("Server disconnected");
 		    	client.stop();
 		}
+		return(true);
     	}
 }
 
-void CircusESP32Lib::write_array(char *key, int array[], int size_of_array, char *token,char size_of_index[]){
+bool CircusESP32Lib::write_array(char *key, int array[], int size_of_array, char *token,char size_of_index[]){
 	CONVERT Convert(false); 
     uint64_t numb_out = Convert.to_int(array,size_of_array,size_of_index);
-    write(key,numb_out,token);
+    bool out = write(key,numb_out,token);
+	return(out);
 }
 
 
@@ -113,6 +116,7 @@ double CircusESP32Lib::read(char *key, char *token) {
     	Serial.println("SSL connection attempt");
     	if (!client.connect(_server, 443)){
 		Serial.println("Connection failed!");
+		return(-1);
     	} else {
         	Serial.println("Connected to server!");
 		char q[250]; // nou
@@ -161,8 +165,13 @@ double CircusESP32Lib::read(char *key, char *token) {
 int * CircusESP32Lib::read_array(char number_array[], char *key, char *token){
     CONVERT Convert(false); 
     uint64_t numb_inn = read(key,token);
+	if(numb_inn == -1){
+		int error[] = {-1};
+		return(error);
+	}else{
     int *recived = Convert.i_to_array(numb_inn,number_array);
     return recived;
+	}
 }
 
 char* CircusESP32Lib::waitResponse(int timeout, WiFiClientSecure *client) {
