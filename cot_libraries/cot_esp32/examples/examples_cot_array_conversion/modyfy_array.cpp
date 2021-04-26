@@ -17,6 +17,7 @@ char psk[] = "Wifi_passwd";                                                 // W
 char token[] = "COT_token";                                                 // circus of things user key
 char server[] = "www.circusofthings.com";                                   // circus of things server addres
 char cot_signal_key[] = "cot_signal_key";                                   // circus of things signal key
+char cot_signal_key2[] = "cot_signal_key";                                   // circus of things signal key
 
 uint64_t test_number = 1234567890123456;                                    // Create a number to use during testing, can be up to 16 characters long
 char char_lenght[10] = {2,1,1,4,2,1,3,2};                                   // Define caharacter pr cell, up to 10 cells
@@ -33,20 +34,27 @@ void setup() {
 }
 
 void loop() {
+    delay(2000);
     int *r = circusESP32.read_array(char_lenght,cot_signal_key,token);      // Run read_array function. neads array of characters pr cell, cot key and cot token
                                                                                 // Returns a 10 cell array, unused cells are 0
-    Serial.println("_____State_____");                                      // Print info line
-    for(int i = 0; i < 10; i++){                                            // Loop trough array
-            Serial.print("cell nr. ");                                      // Print info text
-            Serial.print(i);                                                // Print cell number
-            Serial.print(" = ");                                            // Print info text
-            Serial.println(r[i]);                                           // Print cell content
+    if(r[0] == -1){ Serial.println("no conection, cant read");}             // error message if conection unavalable 
+    else{
+        Serial.println("_____State_____");                                  // Print info line
+        for(int i = 0; i < 10; i++){                                        // Loop trough array
+                Serial.print("cell nr. ");                                  // Print info text
+                Serial.print(i);                                            // Print cell number
+                Serial.print(" = ");                                        // Print info text
+                Serial.println(r[i]);                                       // Print cell content
+        }
+        Serial.print("  cell 0 = ");                                        // Print info text
+        Serial.println(r[0]);                                               // Print cell 0
+        r[0] = random(10,99);                                               // Reasign number in cell 0
+        Serial.println("reasigning number");                                // Print info line 
+        Serial.print("cell 0 = ");                                          // Print info text
+        Serial.println(r[0]);                                               // Print cell 0
+        bool out1 = circusESP32.write_array(cot_signal_key,r,array_lenght,token,char_lenght);           // Run write_array function with cot key, array, array lenght and cot token
+        Serial.print("\n result from writing : "); Serial.println(out1);    // Print info text
     }
-    Serial.print("  cell 0 = ");                                            // Print info text
-    Serial.println(r[0]);                                                   // Print cell 0
-    r[0] = random(10,99);                                                   // Reasign number in cell 0
-    Serial.println("reasigning number");                                    // Print info line 
-    Serial.print("cell 0 = ");                                              // Print info text
-    Serial.println(r[0]);                                                   // Print cell 0
-    circusESP32.write_array(cot_signal_key,r,array_lenght,token,char_lenght);           // Run write_array function with cot key, array, array lenght and cot token
+    bool out2 = circusESP32.write(cot_signal_key2,test_number,token);       // Write test number to cot 
+    Serial.print("\n result from writing : "); Serial.println(out2);        // Print info text
 }
