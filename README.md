@@ -11,6 +11,6 @@ ekstra pluss om dere dokumenterer koden så man slipper og dekode den for og fin
  ____________________________________________________________________________________________________________________________________________
   
 ## Rapport
-Raporten skrives i latex med utgangspunkt i tildelt mal  
+Rapporten skrives i latex med utgangspunkt i tildelt mal  
 for og få tilgang til dette må dere opprette en Overleaf bruker info: https://innsida.ntnu.no/wiki/-/wiki/Norsk/Overleaf  
 **Rapport:** https://www.overleaf.com/1412879244rfyfpftgbbkp  
