@@ -2,23 +2,25 @@ import json
 import requests
 import time
 
+from cotLib import COT
+
 token = "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI1MTA1In0.rtwgSROsIox_OXVB5CLaltp6GdoBp0BA0DtS2Fv3fpM"
 
-badSignal = "12707"
+badSignal = "12707" #Signaler
 kjokkenSignal = "2384"
 stueSignal = "23370"
 
-badTidSignal = "1662"
-kjokkenTidSignal = "8185"
-stueTidSignal = "15699"
+badTidSignal = "1662" #hvert siffer representerer antal 5-min
+kjokkenTidSignal = "8185" #hvert siffer representerer antal 5-min
+stueTidSignal = "15699"#hvert siffer representerer antal 15-min
 
-badDusjSignal = "28076"
-kjokkenOvnSignal = "13261"
+badDusjSignal = "28076" #om personen skal dusje eller ikke
+kjokkenOvnSignal = "13261" # om personen skal bruke ovnen eller ikke
 
 oppvaskSignal = "20610"
+gjesteSignal = "4747" #gjester, indeks = beboer id, indeksverdi = antall gjester den beboeren har
 
-
-bad = {'Key':badSignal,'Value':0,'Token':token}
+bad = {'Key':badSignal,'Value':0,'Token':token} # dictionaries for signaler
 kjokken = {"Key":kjokkenSignal,"Value":0,"Token":token}
 stue = {"Key":stueSignal,"Value":0,"Token":token}
 
@@ -30,10 +32,11 @@ kjokkenTid = {"Key":kjokkenTidSignal,"Value":0,"Token":token}
 stueTid = {"Key":stueTidSignal,"Value":0,"Token":token} 
 
 oppvask = {'Key':oppvaskSignal,'Value':0,'Token':token}
+gjester = {'Key':gjesteSignal,'Value':0,'Token':token}
 
 
 
-def getValues(rom):
+def getValues(rom): #Funksjon som henter verdier fra CoT
     response =requests.get('https://circusofthings.com/ReadValue',params=rom)
     Value = json.loads(response.content)["Value"]
     return Value
@@ -48,14 +51,17 @@ stueTidValue = getValues(stueTid)
 
 badDusjValue = getValues(badDusj)
 kjokkenOvnValue = getValues(kjokkenOvn)
+gjesteValue = getValues(gjester)
 
-oldBadValue = badValue
-oldKjokkenValue = kjokkenValue
-oldStueValue = stueValue
+guestList = COT.to_list(1,gjesteValue,[1,1,1,1,1,1,1]) #Liste for hvem som har besøk, indeks er id nummer til beboer og celle verdi er antall beboer har på besøk 
+del guestList[0] #fjerner første ener får å gjøre den lettere å jobbe med
+
+#guestList = [1,0,2,0,0,0] 
+
 
 oppvaskKapasitet = 0
 
-def popReturnList(queue, time, queueDict, timeDict,indexToPop):
+def popReturnList(queue, time, queueDict, timeDict,indexToPop): #fjerner et valgt element fra listene og returnerer listene
     
     queueList = []
     timeList = []
@@ -64,20 +70,19 @@ def popReturnList(queue, time, queueDict, timeDict,indexToPop):
     time = str(time)
     
 
-    queueList[:0] = queue
+    queueList[:0] = queue #gjør om til en liste
     timeList[:0] = time
     
-    print(queueList)
 
-    del queueList[indexToPop]
+    del queueList[indexToPop] #sletter riktig indeks
     del timeList[indexToPop]
     
 
-    queueList.append("0")
+    queueList.append("0") #legger på en null slik at listen har samme lengde
     timeList.append("0")
     
 
-    queue = ''.join(queueList)
+    queue = ''.join(queueList) #gjør om til en string
     time = ''.join(timeList)
     
 
@@ -93,9 +98,10 @@ def popReturnList(queue, time, queueDict, timeDict,indexToPop):
 
     print("success!")
     print(indexToPop)
+    print(queueDict["Key"])
     return queue, time  
     
-def extraChoicePop(ovnswr,ovnswrDict):
+def extraChoicePop(ovnswr,ovnswrDict): # Funksjon for å fjerne element i ekstra valg listen
     ovnswrList = []
     ovnswr = str(ovnswr)
     ovnswrList[:0] = ovnswr
@@ -113,7 +119,7 @@ def checkQueues(queue1,queue2,queue3): # funksjon som sjekker hvilke signaler de
     a = False
     b = False
     c = [False,False,False]
-    if str(queue1)[1] == "0":
+    if str(queue1)[1] == "0": #sjekker om det er noen i køen
         a = False
     else:
         a = True
@@ -124,13 +130,16 @@ def checkQueues(queue1,queue2,queue3): # funksjon som sjekker hvilke signaler de
     if str(queue3)[1] == "0":
         c = [False,False,False]
     else:
-        i = 1
+        i = 1 # i begynner på 1 fordi listene har en ekstra 1 på starten av tallet
         sum = 0 #sum for antall i stua
-        while i <= 3:
-           sum += guestList[int(str(queue3)[i])] + 1
-           if sum <= 3:
-            c[i-1] = True
-           i+=1
+        while i < len(str(queue3).split('0')[0]): #lengden av queue 3 som ikke har null
+            #print(len(str(queue3).split('0')[0]))
+            sum += int(guestList[int(str(queue3)[i])-1]) + 1 #legger til personen som har booka, pluss eventuelle gjester
+            print(sum)
+            if sum <= 3:
+                c[i-1] = True
+            i+=1
+        #print(sum)
 
     return a,b,c
 
@@ -143,7 +152,6 @@ timerStue3 = time.time()
 kjokkenCountDown = False
 badCountDown = False
 stueCountDownList = [False,False,False] #Hvilke indekser som skal telles ned i stua, maks 3 I stua inkludert besøk, må hente hvilke beboere som har besøk
-guestList = [0,1,2,1,0,0] #Liste for hvem som har besøk, indeks er id nummer til beboer og celle verdi er antall beboer har på besøk 
 
 
 def countDownFunc(countDown,signalValue,timeSignalValue,signalDict,timeDict,indexToPop):
@@ -157,7 +165,7 @@ def countDownFunc(countDown,signalValue,timeSignalValue,signalDict,timeDict,inde
 i = 0
 while True:
     if i > 60:
-        badValue = getValues(bad)
+        badValue = getValues(bad) #henter nye verder fra CoT en gang i minuttet
         kjokkenValue = getValues(kjokken)
         stueValue = getValues(stue)
 
@@ -167,6 +175,11 @@ while True:
 
         badDusjValue = getValues(badDusj)
         kjokkenOvnValue = getValues(kjokkenOvn)
+        gjesteValue = getValues(gjester)
+
+        guestList = COT.to_list(1,gjesteValue,[1,1,1,1,1,1,1])
+        del guestList[0]
+        print(guestList)
         
         i = 0
 
@@ -174,32 +187,32 @@ while True:
     badCountDown, kjokkenCountDown, stueCountDownList = checkQueues(badValue,kjokkenValue,stueValue)
     timeNow = time.time()
 
-    if badCountDown:
-        if (timerBad + int(str(badTidValue)[1])*5*60) < timeNow:
-            badValue, badTidValue = popReturnList(badValue,badTidValue,bad,badTid,1)
-            badDusjValue = extraChoicePop(badDusjValue,badDusj)
-            timerBad = timeNow
+    if badCountDown: #Sjekker om noen står i kø
+        if (timerBad + int(str(badTidValue)[1])*5*60) < timeNow: #sjekker om tiden har gått ut
+            badValue, badTidValue = popReturnList(badValue,badTidValue,bad,badTid,1) #sletter riktig verdi og returner verdi
+            badDusjValue = extraChoicePop(badDusjValue,badDusj) #gjør det samme for liste for ekstra valg
+            timerBad = timeNow #resetter timer
     else:
-        timerBad = time.time()
+        timerBad = timeNow
     if kjokkenCountDown:
-        if (timerKjokken + int(str(kjokkenTidValue)[1])*5*60) < timeNow:
+        if (timerKjokken + int(str(kjokkenTidValue)[1])*5*60) < timeNow: # sjekker om tiden har gått ut
             kjokkenValue, kjokkenTidValue = popReturnList(kjokkenValue,kjokkenTidValue,kjokken,kjokkenTid,1)
             kjokkenOvnValue = extraChoicePop(kjokkenOvnValue,kjokkenOvn)
-            oppvaskKapasitet += 10
+            oppvaskKapasitet += 10 #legger til 10% av oppvaskkapasitet
             if oppvaskKapasitet == 100:
-                oppvask["Value"] = 1
+                oppvask["Value"] = 1 #setter oppvask signal til 1
                 requests.put('https://circusofthings.com/WriteValue',
 				    data=json.dumps(oppvask),headers={'Content-Type':'application/json'}) 
                 oppvaskKapasitet = 0
 
 
-            timerKjokken = timeNow
+            timerKjokken = timeNow #ny tid på timer
     else:
         timerKjokken = timeNow
-    if stueCountDownList[0] == True:
+    if stueCountDownList[0] == True: #sjekker om man skal telle ned i første posisjon i stuelista
         if (timerStue1 + int(str(stueTidValue)[1])*15*60) < timeNow:
             stueValue, stueTidValue = popReturnList(stueValue,stueTidValue,stue,stueTid,1)
-            timerStue2 = timerStue1 + int(str(stueTidValue)[1])*15*60
+            timerStue2 = timerStue1 + int(str(stueTidValue)[1])*15*60 #flytter timerene en posisjon ned
             timerStue3 = timerStue2 + int(str(stueTidValue)[2])*15*60
             timerStue1 = timeNow
     else:
@@ -208,8 +221,11 @@ while True:
     if stueCountDownList[1] == True:
         if (timerStue2 + int(str(stueTidValue)[2])*15*60) < timeNow:
             stueValue, stueTidValue = popReturnList(stueValue,stueTidValue,stue,stueTid,2)
-            timerStue3 = timerStue2 + int(str(stueTidValue)[3])*15*60
+            timerStue3 = timerStue2 + int(str(stueTidValue)[3])*15*60 #flytter timer 3 riktig posisjon
             timerStue2 = timeNow
+
+            print(stueTidValue)
+            print(guestList)
     else:
         timerStue2 = timeNow
 
@@ -222,11 +238,3 @@ while True:
     
     time.sleep(1)
     i += 1
-
-    oldBadValue = badValue
-    oldKjokkenValue = kjokkenValue
-    oldStueValue = stueValue
-
-
-
-
