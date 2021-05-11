@@ -12,5 +12,6 @@ ekstra pluss om dere dokumenterer koden så man slipper og dekode den for og fin
   
 ## Rapport
 Rapporten skrives i latex med utgangspunkt i tildelt mal. 
+
 **Rapport:** https://www.overleaf.com/1412879244rfyfpftgbbkp  
 **Kode dokumentasjon:** https://www.overleaf.com/project/609a38a121e0cce99deecd0c
