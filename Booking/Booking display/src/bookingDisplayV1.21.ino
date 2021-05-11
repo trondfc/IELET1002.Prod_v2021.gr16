@@ -85,22 +85,22 @@ void intToArray(int num, int liste[]){ // funksjon for int til array
 int bookFunc(char keyBook[],int reservert,char keyTime[]){ // funksjon som endrer verdi i kølisten og sender verdien til CoT
   int queueArray[arrayLength];
   int timeArray[arrayLength];
-  int queueNum = circusESP32.read(keyBook,token1);
+  int queueNum = circusESP32.read(keyBook,token1); //leser verdiene fra CoT
   int timeNum = circusESP32.read(keyTime,token1);
 
-  intToArray(queueNum,queueArray);
+  intToArray(queueNum,queueArray); //gjør om til array
   intToArray(timeNum,timeArray);
 
   int index = 0;
-  if(queueArray[6] != 0){
+  if(queueArray[6] != 0){ //returnerer -1 hvis listen er full
     return -1;
   }
   else{
     for (int i = 0; i < 7; i++){
-      if (queueArray[i] == 0){
-        queueArray[i] = userIdNum;
+      if (queueArray[i] == 0){ //leter etter ledig plass i listen
+        queueArray[i] = userIdNum; //setter ny verdi i lista
         timeArray[i] = reservert;
-        index = i;
+        index = i; //hvilken index som ble endret
         circusESP32.write(keyBook,arrayToInt(queueArray),token1); //skriver listene til cot
         circusESP32.write(keyTime,arrayToInt(timeArray),token1);
         break;
@@ -141,7 +141,7 @@ void joystick() {
   }
 }
 
-int checkTime(char keyBook[],char keyTime[]){
+int checkTime(char keyBook[],char keyTime[]){ // funksjon som itererer gjennom tidslisten og sier hvor lang tid det tar før det er brukerens tur
   int sum = 0;
   int countDown;
   int timeArray[arrayLength];
@@ -162,7 +162,7 @@ int checkTime(char keyBook[],char keyTime[]){
    return countDown;
 }
 
-void extraChoice(char key[], int index,int choice){ // signal og hvilken indeks som skal
+void extraChoice(char key[], int index,int choice){ // funksjon for rom med ekstra valg lister
   int array[arrayLength];
   int num = circusESP32.read(key,token1);
   intToArray(num,array);
