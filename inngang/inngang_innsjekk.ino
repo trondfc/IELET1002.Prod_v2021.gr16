@@ -112,6 +112,8 @@ void loop() {
     
   if (rfid.isCard()) {
     // print kort nummere i serial monitor
+    
+    if (rfid.readCardSerial()) {}
 
     // kjører funksjonen med gyldige kort og skanned kort og returner true om det samsvarer
     char* card_now = (char*)rfid.serNum;
