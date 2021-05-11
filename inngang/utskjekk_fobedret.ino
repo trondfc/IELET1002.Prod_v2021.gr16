@@ -109,6 +109,7 @@ void loop() {
   if (rfid.isCard()) {
     // print kort nummere i serial monitor
     if (rfid.readCardSerial()) {
+     tft.setCursor(5, 42);
     }
 
     // kjører funksjonen med gyldige kort og skanned kort og returner true om det samsvarer
