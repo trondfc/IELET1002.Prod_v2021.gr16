@@ -111,8 +111,8 @@ void loop() {
 
     
   if (rfid.isCard()) {
-    // print kort nummere i serial monitor
     
+    // setter plaseringen for texten på skjermen
     if (rfid.readCardSerial()) 
     {tft.setCursor(5, 42);}
 
