@@ -12,5 +12,5 @@ ekstra pluss om dere dokumenterer koden så man slipper og dekode den for og fin
   
 ## Rapport
 Rapporten skrives i latex med utgangspunkt i tildelt mal. 
-For å få tilgang til dette må det opprettes en Overleaf bruker: https://innsida.ntnu.no/wiki/-/wiki/Norsk/Overleaf  
+For å få tilgang til dette, må dere opprette en Overleaf bruker: https://innsida.ntnu.no/wiki/-/wiki/Norsk/Overleaf  
 **Rapport:** https://www.overleaf.com/1412879244rfyfpftgbbkp  
