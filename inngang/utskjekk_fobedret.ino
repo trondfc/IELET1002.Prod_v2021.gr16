@@ -109,20 +109,6 @@ void loop() {
   if (rfid.isCard()) {
     // print kort nummere i serial monitor
     if (rfid.readCardSerial()) {
-     
-      // print kort nummere på skjermen
-      tft.setCursor(5, 42);
-      tft.print(rfid.serNum[0]);
-      tft.print(" ");
-      tft.print(rfid.serNum[1]);
-      tft.print(" ");
-      tft.print(rfid.serNum[2]);
-      tft.print(" ");
-      tft.print(rfid.serNum[3]);
-      tft.print(" ");
-      tft.print(rfid.serNum[4]);
-      tft.println("");
-      tft.fillScreen(BLUE);
     }
 
     // kjører funksjonen med gyldige kort og skanned kort og returner true om det samsvarer
